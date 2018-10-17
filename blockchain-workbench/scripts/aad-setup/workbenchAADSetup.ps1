@@ -164,6 +164,12 @@ try {
 if ($matchedUsers -And $matchedUsers.length -gt 0) {
     Write-Host "$($matchedUsers.length) user(s) were found with email '$($currentUser.Account.Id)'"
     $user = $matchedUsers[0]
+} else {
+    Write-Host "WARNING: No user was found with email '$($currentUser.Account.Id)' in '$TenantName' tenant. Trying existing user instead" -foregroundcolor yellow
+    $user = Get-AzureADUser | Select-Object -First 1
+}
+
+if ($user)
     # Assign the current logged in user to be the owner of the Application. (this is nice to have)
     try {
         # Note: There is a bug in method Add-AzureADApplicationOwner in AzureAD.Standard.Preview lib
@@ -188,7 +194,7 @@ if ($matchedUsers -And $matchedUsers.length -gt 0) {
 
     Write-Host "Added '$($currentUser.Account.Id)' as an admin on the application"
 } else {
-    Write-Host "WARNING: No user was found with email '$($currentUser.Account.Id)' in '$TenantName' tenant. Please refer to the docs to do this manually" -foregroundcolor yellow
+    Write-Host "WARNING: No active user was found in '$TenantName' tenant. Please refer to the docs to do this manually" -foregroundcolor yellow
 }
 
 Write-Host "SUCCESS: Your AAD application was successfully provisioned" -foregroundcolor green
